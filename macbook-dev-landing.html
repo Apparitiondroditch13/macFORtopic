@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacBook — ноутбук, созданный для кода</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-black:#07070b;
+    --bg-graphite:#131319;
+    --bg-navy:#0d1a2e;
+    --bg-purple:#1c1330;
+    --accent-1:#6c63ff;
+    --accent-2:#a855f7;
+    --accent-3:#22d3ee;
+    --grad-accent:linear-gradient(135deg,var(--accent-1),var(--accent-2) 55%,var(--accent-3));
+    --text-hi:#f4f4f8;
+    --text-mid:#a9a9bd;
+    --text-low:#6c6c82;
+    --glass-bg:rgba(255,255,255,0.045);
+    --glass-border:rgba(255,255,255,0.09);
+    --radius-l:24px;
+    --radius-m:16px;
+    --ease:cubic-bezier(.16,.84,.44,1);
+    --font-display:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-mono:'JetBrains Mono',SFMono-Regular,Menlo,monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--font-body);
+    color:var(--text-hi);
+    background:var(--bg-black);
+    overflow-x:hidden;
+    line-height:1.5;
+  }
+  ::selection{background:var(--accent-2);color:#fff;}
+
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  img{max-width:100%;display:block;}
+
+  /* ---------- Background layers ---------- */
+  .bg-fixed{
+    position:fixed;inset:0;
+    z-index:-3;
+    background:linear-gradient(120deg,var(--bg-black) 0%,var(--bg-navy) 35%,var(--bg-purple) 65%,var(--bg-graphite) 100%);
+    background-size:300% 300%;
+    animation:bgShift 22s ease-in-out infinite;
+  }
+  @keyframes bgShift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:.35;
+    z-index:-2;
+    pointer-events:none;
+  }
+  .blob-1{
+    width:42vw;height:42vw;
+    background:radial-gradient(circle,var(--accent-1),transparent 70%);
+    top:-10%;left:-10%;
+    animation:float1 24s ease-in-out infinite;
+  }
+  .blob-2{
+    width:38vw;height:38vw;
+    background:radial-gradient(circle,var(--accent-2),transparent 70%);
+    bottom:-15%;right:-10%;
+    animation:float2 19s ease-in-out infinite;
+  }
+  .blob-3{
+    width:30vw;height:30vw;
+    background:radial-gradient(circle,var(--accent-3),transparent 70%);
+    top:40%;left:55%;
+    animation:float3 27s ease-in-out infinite;
+  }
+  @keyframes float1{
+    0%,100%{transform:translate(0,0) scale(1);}
+    33%{transform:translate(15vw,10vh) scale(1.15);}
+    66%{transform:translate(5vw,20vh) scale(.9);}
+  }
+  @keyframes float2{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(-12vw,-14vh) scale(1.2);}
+  }
+  @keyframes float3{
+    0%,100%{transform:translate(0,0) scale(1);}
+    40%{transform:translate(-18vw,8vh) scale(.85);}
+    70%{transform:translate(6vw,-10vh) scale(1.1);}
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    z-index:-1;
+    pointer-events:none;
+    opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  #particles{
+    position:fixed;inset:0;
+    z-index:-1;
+    pointer-events:none;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+  section{position:relative;padding:140px 0;}
+  @media(max-width:768px){section{padding:90px 0;}}
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:.03em;
+    color:var(--accent-3);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-3);box-shadow:0 0 10px var(--accent-3);}
+
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-.02em;}
+
+  .reveal{
+    opacity:0;
+    transform:translateY(36px);
+    transition:opacity .9s var(--ease), transform .9s var(--ease);
+  }
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+
+  .glass{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:var(--radius-l);
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:16px 30px;
+    border-radius:100px;
+    font-weight:600;
+    font-size:15px;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), filter .35s var(--ease);
+  }
+  .btn-primary{
+    background:var(--grad-accent);
+    color:#fff;
+    box-shadow:0 8px 30px -8px rgba(108,99,255,.6);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 36px -8px rgba(168,85,247,.7);}
+  .btn-ghost{
+    background:transparent;
+    color:var(--text-hi);
+    border:1px solid var(--glass-border);
+  }
+  .btn-ghost:hover{border-color:var(--accent-3);color:var(--accent-3);}
+
+
+  header{
+    position:fixed;top:0;left:0;right:0;
+    z-index:100;
+    padding:20px 0;
+    transition:background .4s var(--ease), border-color .4s var(--ease);
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(7,7,11,.65);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--glass-border);
+  }
+  header .wrap{display:flex;align-items:center;justify-content:space-between;}
+  .logo{
+    font-family:var(--font-mono);
+    font-weight:500;
+    font-size:16px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .logo span{color:var(--accent-3);}
+  nav ul{display:flex;gap:34px;list-style:none;}
+  nav a{font-size:14px;color:var(--text-mid);transition:color .25s;}
+  nav a:hover{color:var(--text-hi);}
+  @media(max-width:768px){nav{display:none;}}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding-top:120px;
+  }
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:60px;
+    align-items:center;
+  }
+  @media(max-width:940px){
+    .hero .wrap{grid-template-columns:1fr;text-align:center;}
+    .hero-visual{order:-1;}
+  }
+  .hero h1{
+    font-size:clamp(34px,5vw,58px);
+    line-height:1.08;
+    margin-bottom:22px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:var(--grad-accent);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p{
+    font-size:18px;
+    color:var(--text-mid);
+    max-width:520px;
+    margin-bottom:36px;
+  }
+  @media(max-width:940px){.hero p{margin-inline:auto;}}
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+  @media(max-width:940px){.hero-actions{justify-content:center;}}
+
+ 
+  .hero-visual{perspective:1400px;display:flex;justify-content:center;}
+  .laptop{
+    width:min(440px,90vw);
+    transform-style:preserve-3d;
+    transform:rotateX(8deg) rotateY(-14deg);
+    transition:transform .15s ease-out;
+    filter:drop-shadow(0 40px 60px rgba(0,0,0,.55));
+  }
+  .screen{
+    background:#0b0b10;
+    border:2px solid #2a2a34;
+    border-radius:14px 14px 0 0;
+    padding:10px;
+    position:relative;
+  }
+  .screen::before{
+    content:'';
+    position:absolute;top:0;left:50%;
+    transform:translateX(-50%);
+    width:60px;height:8px;
+    background:#050508;
+    border-radius:0 0 8px 8px;
+  }
+  .screen-inner{
+    background:linear-gradient(160deg,#0e0e17,#161022 60%,#0c1220);
+    border-radius:6px;
+    padding:20px 18px;
+    height:260px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:#8fe9c1;
+    overflow:hidden;
+  }
+  .term-line{color:var(--text-mid);margin-bottom:6px;white-space:pre;}
+  .term-prompt{color:var(--accent-3);}
+  #typed{color:#c9c9f5;}
+  .cursor{display:inline-block;width:7px;height:14px;background:var(--accent-3);vertical-align:middle;animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .base{
+    height:16px;
+    background:linear-gradient(180deg,#1b1b22,#0a0a0e);
+    border-radius:0 0 10px 10px;
+    position:relative;
+  }
+  .base::after{
+    content:'';
+    position:absolute;left:50%;top:0;
+    transform:translateX(-50%);
+    width:80px;height:6px;
+    background:#050508;
+    border-radius:0 0 6px 6px;
+  }
+  .base-shadow{
+    width:92%;
+    height:16px;
+    margin:0 auto;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%);
+    filter:blur(4px);
+  }
+
+  /* ---------- Section headings ---------- */
+  .section-head{max-width:640px;margin-bottom:64px;}
+  .section-head h2{font-size:clamp(26px,3.4vw,40px);margin-bottom:14px;}
+  .section-head p{color:var(--text-mid);font-size:16px;}
+
+  /* ---------- Features ---------- */
+  .features-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  @media(max-width:940px){.features-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.features-grid{grid-template-columns:1fr;}}
+
+  .feature-card{
+    padding:32px 28px;
+    transition:transform .4s var(--ease), border-color .4s var(--ease), background .4s var(--ease);
+  }
+  .feature-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(168,85,247,.4);
+    background:rgba(255,255,255,.065);
+  }
+  .feature-icon{
+    width:46px;height:46px;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--grad-accent);
+    margin-bottom:20px;
+  }
+  .feature-icon svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.8;}
+  .feature-card h3{font-size:18px;margin-bottom:10px;}
+  .feature-card p{font-size:14.5px;color:var(--text-mid);}
+
+  /* ---------- Performance ---------- */
+  .perf-wrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+  }
+  @media(max-width:900px){.perf-wrap{grid-template-columns:1fr;}}
+  .perf-bars{padding:36px;}
+  .perf-item{margin-bottom:28px;}
+  .perf-item:last-child{margin-bottom:0;}
+  .perf-labels{display:flex;justify-content:space-between;font-size:14px;color:var(--text-mid);margin-bottom:10px;}
+  .perf-labels b{color:var(--text-hi);font-weight:500;}
+  .perf-track{
+    height:10px;
+    border-radius:100px;
+    background:rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .perf-fill{
+    height:100%;
+    width:0%;
+    border-radius:100px;
+    background:var(--grad-accent);
+    transition:width 1.6s var(--ease);
+  }
+  .perf-note{font-family:var(--font-mono);font-size:12px;color:var(--text-low);margin-top:8px;}
+
+  .perf-copy h2{margin-bottom:18px;}
+  .perf-copy p{color:var(--text-mid);margin-bottom:16px;}
+  .perf-copy p:last-child{margin-bottom:0;font-size:13px;color:var(--text-low);}
+
+  /* ---------- Testimonials ---------- */
+  .testimonials-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  @media(max-width:900px){.testimonials-grid{grid-template-columns:1fr;}}
+  .t-card{padding:30px 26px;}
+  .t-quote{font-size:15px;color:var(--text-hi);margin-bottom:24px;line-height:1.65;}
+  .t-quote::before{content:'“';color:var(--accent-2);font-size:22px;}
+  .t-person{display:flex;align-items:center;gap:12px;}
+  .t-avatar{
+    width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:600;font-size:14px;color:#fff;
+    background:var(--grad-accent);
+  }
+  .t-name{font-size:14px;font-weight:600;}
+  .t-role{font-size:12.5px;color:var(--text-mid);}
+
+  /* ---------- CTA ---------- */
+  .cta-section{padding:100px 0;}
+  .cta-box{
+    padding:70px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cta-box::before{
+    content:'';
+    position:absolute;inset:-40%;
+    background:radial-gradient(circle at 50% 50%, rgba(108,99,255,.25), transparent 60%);
+    animation:ctaGlow 12s ease-in-out infinite;
+  }
+  @keyframes ctaGlow{
+    0%,100%{transform:scale(1) translate(0,0);}
+    50%{transform:scale(1.2) translate(4%,-4%);}
+  }
+  .cta-box h2{font-size:clamp(26px,4vw,42px);margin-bottom:16px;position:relative;}
+  .cta-box p{color:var(--text-mid);margin-bottom:32px;position:relative;max-width:520px;margin-inline:auto;}
+  .cta-box .hero-actions{justify-content:center;position:relative;}
+
+  /* ---------- Footer ---------- */
+  footer{padding:50px 0 40px;border-top:1px solid var(--glass-border);}
+  footer .wrap{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+  }
+  .footer-links{display:flex;gap:26px;list-style:none;}
+  .footer-links a{font-size:13.5px;color:var(--text-mid);transition:color .25s;}
+  .footer-links a:hover{color:var(--text-hi);}
+  .footer-copy{font-size:12.5px;color:var(--text-low);font-family:var(--font-mono);}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fixed"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div class="grain"></div>
+<canvas id="particles"></canvas>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <div class="logo">&gt;_ <span>dev/macbook</span></div>
+    <nav>
+      <ul>
+        <li><a href="#features">Почему MacBook</a></li>
+        <li><a href="#perf">Скорость</a></li>
+        <li><a href="#reviews">Отзывы</a></li>
+        <li><a href="#cta">Цена</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="eyebrow">silicon.dev / for developers</div>
+      <h1>MacBook — ноутбук,<br>созданный для <em>кода</em></h1>
+      <p>Apple Silicon под капотом, Unix в терминале и дисплей, на который приятно смотреть в два часа ночи. Всё, что нужно разработчику — в одном устройстве, без компромиссов.</p>
+      <div class="hero-actions">
+        <a href="#features" class="btn btn-primary">Узнать больше →</a>
+        <a href="#perf" class="btn btn-ghost">Смотреть бенчмарки</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="laptop" id="laptop">
+        <div class="screen">
+          <div class="screen-inner">
+            <div class="term-line"><span class="term-prompt">➜</span> ~/project <span id="typed"></span><span class="cursor"></span></div>
+          </div>
+        </div>
+        <div class="base"></div>
+        <div class="base-shadow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">// почему разработчики выбирают MacBook</div>
+      <h2>Инструмент, который не мешает думать</h2>
+      <p>Шесть причин, по которым MacBook стал стандартным рабочим местом для бэкенда, мобильной разработки и DevOps.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/><path d="M4 9H2M4 15H2M22 9h-2M22 15h-2M9 4V2M15 4V2M9 22v-2M15 22v-2"/></svg></div>
+        <h3>Apple Silicon (M-серия)</h3>
+        <p>Компиляция и сборка проектов идут в разы быстрее, а чип почти не греется даже под долгой нагрузкой — энергоэффективность встроена в архитектуру.</p>
+      </div>
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <h3>Unix-ядро macOS</h3>
+        <p>Родной терминал без плясок с эмуляцией. Homebrew, Docker, Node и Python ставятся одной командой и работают как надо.</p>
+      </div>
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M17 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M11 6h2"/></svg></div>
+        <h3>Автономность на весь день</h3>
+        <p>До 18+ часов работы без розетки. Можно закрыть ноутбук посреди сборки — он продолжит с того же места.</p>
+      </div>
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/></svg></div>
+        <h3>Retina-дисплей</h3>
+        <p>Чёткий текст и код без «мыла» даже при мелком шрифте — глаза меньше устают за долгие часы за экраном.</p>
+      </div>
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9l6 3"/></svg></div>
+        <h3>Тишина в работе</h3>
+        <p>Большинство задач — от вёрстки до локального сервера — выполняются без единого звука вентилятора.</p>
+      </div>
+
+      <div class="feature-card glass reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="16" rx="2"/><rect x="17" y="9" width="4" height="10" rx="1"/></svg></div>
+        <h3>Экосистема Apple</h3>
+        <p>Handoff, Universal Clipboard и AirDrop связывают MacBook с iPhone и iPad — скопировал на одном, вставил на другом.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="perf">
+  <div class="wrap">
+    <div class="perf-wrap">
+      <div class="perf-bars glass reveal">
+        <div class="perf-item">
+          <div class="perf-labels"><span>Сборка React-проекта</span><b>92%</b></div>
+          <div class="perf-track"><div class="perf-fill" data-value="92"></div></div>
+          <div class="perf-note">webpack build, холодный старт</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-labels"><span>Компиляция Xcode / Swift</span><b>88%</b></div>
+          <div class="perf-track"><div class="perf-fill" data-value="88"></div></div>
+          <div class="perf-note">clean build, средний проект</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-labels"><span>Виртуальные машины (Docker/UTM)</span><b>81%</b></div>
+          <div class="perf-track"><div class="perf-fill" data-value="81"></div></div>
+          <div class="perf-note">запуск нескольких контейнеров</div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-labels"><span>Работа от батареи под нагрузкой</span><b>95%</b></div>
+          <div class="perf-track"><div class="perf-fill" data-value="95"></div></div>
+          <div class="perf-note">компиляция без подключения к сети</div>
+        </div>
+      </div>
+      <div class="perf-copy reveal">
+        <div class="eyebrow">// benchmarks</div>
+        <h2>Насколько быстрее? Цифры говорят сами</h2>
+        <p>Относительная производительность по сравнению с ноутбуками предыдущего поколения на типичных задачах разработчика: сборка, компиляция и работа с виртуальными окружениями.</p>
+        <p>Показатели усреднены по внутренним замерам и открытым бенчмаркам сообщества.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">// отзывы разработчиков</div>
+      <h2>Что говорят те, кто пишет код каждый день</h2>
+    </div>
+    <div class="testimonials-grid">
+
+      <div class="t-card glass reveal">
+        <p class="t-quote">Первый ноутбук, на котором сборка бэкенда не превращается в повод сходить за кофе. Тихо, холодно, быстро.</p>
+        <div class="t-person">
+          <div class="t-avatar">АК</div>
+          <div><div class="t-name">Артём Ковалёв</div><div class="t-role">Backend-разработчик</div></div>
+        </div>
+      </div>
+
+      <div class="t-card glass reveal">
+        <p class="t-quote">Xcode наконец не тормозит при индексации. Плюс батареи хватает на весь день конференции без розетки.</p>
+        <div class="t-person">
+          <div class="t-avatar">МС</div>
+          <div><div class="t-name">Мария Соколова</div><div class="t-role">iOS-разработчик</div></div>
+        </div>
+      </div>
+
+      <div class="t-card glass reveal">
+        <p class="t-quote">Поднимаю по десятку контейнеров одновременно — вентилятор молчит. Терминал и Homebrew из коробки экономят часы настройки.</p>
+        <div class="t-person">
+          <div class="t-avatar">ДП</div>
+          <div><div class="t-name">Даниил Петров</div><div class="t-role">DevOps-инженер</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="cta">
+  <div class="wrap">
+    <div class="cta-box glass reveal">
+      <h2>Готовы писать код быстрее?</h2>
+      <p>Узнайте актуальную цену и конфигурации MacBook, подобранные под задачи разработки.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary">Узнать цену →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo">&gt;_ <span>dev/macbook</span></div>
+    <ul class="footer-links">
+      <li><a href="#features">Почему MacBook</a></li>
+      <li><a href="#perf">Скорость</a></li>
+      <li><a href="#reviews">Отзывы</a></li>
+    </ul>
+    <div class="footer-copy">made for developers, 2026</div>
+  </div>
+</footer>
+
+<script>
+// ---------- Header on scroll ----------
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ---------- Reveal on scroll ----------
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => io.observe(el));
+
+// ---------- Performance bars ----------
+const perfSection = document.getElementById('perf');
+const fills = document.querySelectorAll('.perf-fill');
+const perfIO = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      fills.forEach(f => f.style.width = f.dataset.value + '%');
+      perfIO.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+perfIO.observe(perfSection);
+
+// ---------- Laptop tilt on mouse move ----------
+const laptop = document.getElementById('laptop');
+const heroVisual = document.querySelector('.hero-visual');
+heroVisual.addEventListener('mousemove', (e) => {
+  const rect = heroVisual.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width - 0.5;
+  const y = (e.clientY - rect.top) / rect.height - 0.5;
+  laptop.style.transform = `rotateX(${8 - y * 14}deg) rotateY(${-14 + x * 20}deg)`;
+});
+heroVisual.addEventListener('mouseleave', () => {
+  laptop.style.transform = 'rotateX(8deg) rotateY(-14deg)';
+});
+
+// ---------- Terminal typing loop ----------
+const typedEl = document.getElementById('typed');
+const commands = [
+  'npm run build',
+  'docker compose up -d',
+  'git push origin main',
+  'swift build -c release',
+  'brew install node'
+];
+let cmdIndex = 0, charIndex = 0, deleting = false;
+
+function typeLoop() {
+  const current = commands[cmdIndex];
+  if (!deleting) {
+    charIndex++;
+    typedEl.textContent = current.slice(0, charIndex);
+    if (charIndex === current.length) {
+      deleting = true;
+      setTimeout(typeLoop, 1400);
+      return;
+    }
+  } else {
+    charIndex--;
+    typedEl.textContent = current.slice(0, charIndex);
+    if (charIndex === 0) {
+      deleting = false;
+      cmdIndex = (cmdIndex + 1) % commands.length;
+    }
+  }
+  setTimeout(typeLoop, deleting ? 30 : 65);
+}
+typeLoop();
+
+// ---------- Floating particles canvas ----------
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function initParticles() {
+  const count = window.innerWidth < 768 ? 30 : 60;
+  particles = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.6 + 0.4,
+    speed: Math.random() * 0.4 + 0.15,
+    drift: (Math.random() - 0.5) * 0.3,
+    alpha: Math.random() * 0.5 + 0.15
+  }));
+}
+initParticles();
+window.addEventListener('resize', initParticles);
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(150,160,255,${p.alpha})`;
+    ctx.fill();
+    p.y -= p.speed;
+    p.x += p.drift;
+    if (p.y < -10) {
+      p.y = canvas.height + 10;
+      p.x = Math.random() * canvas.width;
+    }
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+</script>
+
+</body>
+</html>
